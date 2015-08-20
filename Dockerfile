@@ -10,7 +10,8 @@ RUN export http_proxy="http://172.17.42.1:8080/" \
     && rm -rf usr/share/locale \
     && rm -rf usr/share/man    \
     && rm -rf usr/share/doc    \
-    && rm -rf usr/share/info
+    && rm -rf usr/share/info   \
+    && find var/lib/apt -type f -exec rm -f {} \;
 
 ADD ./entrypoint.pl /entrypoint.pl
 
