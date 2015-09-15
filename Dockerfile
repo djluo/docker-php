@@ -4,7 +4,7 @@ MAINTAINER djluo <dj.luo@baoyugame.com>
 RUN export http_proxy="http://172.17.42.1:8080/" \
     && export DEBIAN_FRONTEND=noninteractive     \
     && apt-get update \
-    && apt-get install -y php5 php5-fpm php5-cli php5-mysql php5-mcrypt php5-gd \
+    && apt-get install -y php5 php5-fpm php5-cli php5-mysql php5-mcrypt php5-gd supervisor \
     && apt-get clean \
     && unset http_proxy DEBIAN_FRONTEND \
     && rm -rf usr/share/locale \
@@ -13,7 +13,8 @@ RUN export http_proxy="http://172.17.42.1:8080/" \
     && rm -rf usr/share/info   \
     && find var/lib/apt -type f -exec rm -f {} \;
 
-ADD ./entrypoint.pl /entrypoint.pl
+COPY ./entrypoint.pl /
+COPY ./conf/         /conf
 
 ENTRYPOINT ["/entrypoint.pl"]
-CMD        ["/usr/sbin/php5-fpm", "--fpm-config", "/etc/php5/fpm/php-fpm.conf"]
+CMD        ["/usr/bin/supervisord", "-n", "-c", "/etc/php5/fpm/supervisord.conf"]

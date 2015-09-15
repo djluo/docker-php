@@ -10,11 +10,13 @@
 # 问题: 如用shell的su命令切换,会遗留一个su本身的进程.
 # 最终: 使用perl脚本进行添加和切换操作. 从环境变量User_Id获取用户信息.
 
+use Cwd;
 use strict;
 #use English '-no_match_vars';
 
 my $uid = 1000;
 my $gid = 1000;
+my $pwd = cwd();
 
 $uid = $gid = $ENV{'User_Id'} if $ENV{'User_Id'} =~ /\d+/;
 
@@ -32,8 +34,16 @@ unless (getpwuid("$uid")){
   add_user("docker", "$uid");
 }
 
-system("mkdir", "/logs") unless ( -d "/logs" );
-system("chown docker.docker -R /logs");
+system("chown docker.docker -R ./logs") if ( -d "./logs");
+
+my @confs= ( "nginx.conf", "php-fpm.conf", "php.ini", "supervisord.conf");
+for my $conf (@confs) {
+  unless ( -f "$conf") {
+    system("cp", "-a", "/conf/$conf", "/etc/php5/fpm/");
+    system("sed", "-i", "s%/path/to/dir%$pwd%", "/etc/php5/fpm/$conf");
+    system("chgrp", "docker", "/etc/php5/fpm/$conf");
+  }
+}
 
 # 切换当前运行用户,先切GID.
 #$GID = $EGID = $gid;
