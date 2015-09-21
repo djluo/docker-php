@@ -15,6 +15,7 @@ RUN export http_proxy="http://172.17.42.1:8080/" \
 
 COPY ./entrypoint.pl /
 COPY ./conf/         /conf
+COPY ./example/      /example
 ENV PHP_INI_SCAN_DIR /etc/php5/conf.d
 
 ENTRYPOINT ["/entrypoint.pl"]

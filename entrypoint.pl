@@ -36,6 +36,11 @@ unless (getpwuid("$uid")){
 
 system("chown docker.docker -R ./logs") if ( -d "./logs");
 
+unless ( -f "/etc/php5/fpm/nginx.conf"){
+  system("cp", "-a", "/example/djluo-phpinfo.php", "./html/");
+  system("cp", "-a", "/example/djluo-mysql.php",   "./html/");
+}
+
 my @confs= ( "nginx.conf", "php-fpm.conf", "php.ini", "supervisord.conf");
 for my $conf (@confs) {
   unless ( -f "$conf") {
