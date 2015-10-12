@@ -43,7 +43,7 @@ unless ( -f "/etc/php5/fpm/nginx.conf"){
 
 my @confs= ( "nginx.conf", "php-fpm.conf", "php.ini", "supervisord.conf");
 for my $conf (@confs) {
-  unless ( -f "$conf") {
+  unless ( -f "/etc/php5/fpm/$conf") {
     system("cp", "-a", "/conf/$conf", "/etc/php5/fpm/");
     system("sed", "-i", "s%/path/to/dir%$pwd%", "/etc/php5/fpm/$conf");
     system("chgrp", "docker", "/etc/php5/fpm/$conf");
