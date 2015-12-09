@@ -34,6 +34,7 @@ _run() {
   sudo docker run $mode $port \
     -e "TZ=Asia/Shanghai"     \
     -e "User_Id=${User_Id}"   \
+    -e "PHP_INI_SCAN_DIR=/etc/php5/mods-available/" \
     -w "/${current_dir}/" $volume  \
     -v ${current_dir}/conf/:/etc/php5/fpm/       \
     -v ${current_dir}/logs/:/${current_dir}/logs \
