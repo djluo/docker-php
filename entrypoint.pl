@@ -17,7 +17,9 @@ use strict;
 my $uid = 1000;
 my $gid = 1000;
 my $pwd = cwd();
+my $domain = "www.example.com";
 
+$domain     = $ENV{'Domain'}  if $ENV{'Domain'};
 $uid = $gid = $ENV{'User_Id'} if $ENV{'User_Id'} =~ /\d+/;
 
 sub add_user {
@@ -34,19 +36,24 @@ unless (getpwuid("$uid")){
   add_user("docker", "$uid");
 }
 
+system("chown docker.docker -R ./log")  if ( -d "./log");
 system("chown docker.docker -R ./logs") if ( -d "./logs");
 
-unless ( -f "/etc/php5/fpm/nginx.conf"){
-  system("cp", "-a", "/example/djluo-phpinfo.php", "./html/");
-  system("cp", "-a", "/example/djluo-mysql.php",   "./html/");
-}
+my $confp = "/etc/php5/fpm/";
+my @confs = ( "nginx.conf", "php-fpm.conf", "php.ini", "supervisord.conf");
 
-my @confs= ( "nginx.conf", "php-fpm.conf", "php.ini", "supervisord.conf");
 for my $conf (@confs) {
-  unless ( -f "/etc/php5/fpm/$conf") {
-    system("cp", "-a", "/conf/$conf", "/etc/php5/fpm/");
-    system("sed", "-i", "s%/path/to/dir%$pwd%", "/etc/php5/fpm/$conf");
-    system("chgrp", "docker", "/etc/php5/fpm/$conf");
+  unless ( -f "$confp/$conf") {
+    system("cp", "-a", "/conf/$conf", "$confp/");
+    system("sed", "-i", "s%/path/to/dir%$pwd%", "$confp/$conf");
+
+    if ( $conf eq "nginx.conf") {
+      system("sed", "-i", "/server_name/s%www.example.com%$domain%", "$confp/$conf");
+      system("cp",  "-a", "/example/delete-me-phpinfo.php", "./html/");
+      system("cp",  "-a", "/example/delete-me-mysql.php",   "./html/");
+    }
+
+    system("chgrp", "docker", "$confp/$conf");
   }
 }
 
